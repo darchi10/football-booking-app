@@ -49,6 +49,8 @@ public class ReservationServiceImpl implements ReservationService{
         return mapToResponseDTO(savedReservation);
     }
 
+    //ogromna greska treba biti /api/field/getallreservations
+    //jer se inace gledaju sve rezervacije za pojedine terene...
     @Override
     public List<ReservationResponseDTO> getAllReservations() {
         return reservationRepository.findAll().stream()
