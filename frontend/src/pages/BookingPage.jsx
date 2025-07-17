@@ -25,16 +25,16 @@ const BookingPage = () => {
     useEffect(() => {
         const fetchReservations = async () => {
             try {
-                const response = await api.get(`/reservations`);
+                const response = await api.get(`/reservations?fieldId=${fieldId}`);
                 setReservations(response.data);
             } catch (err) {
-                setError('Greška pri dohvaćanju terena');
+                setError('Greška pri dohvaćanju rezervacija');
             } finally {
                 setLoading(false);
             }
         };
         fetchReservations();
-    }, [])
+    }, [fieldId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

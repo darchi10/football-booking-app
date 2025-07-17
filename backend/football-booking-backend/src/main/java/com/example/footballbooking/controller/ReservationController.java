@@ -44,8 +44,8 @@ public class ReservationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReservationResponseDTO>> getAllReservations() {
-        List<ReservationResponseDTO> reservations = reservationService.getAllReservations();
+    public ResponseEntity<List<ReservationResponseDTO>> getAllReservationsByFieldId(@RequestParam("fieldId") Long id) {
+        List<ReservationResponseDTO> reservations = reservationService.getAllReservationsByFieldId(id);
         return ResponseEntity.ok(reservations);
     }
 

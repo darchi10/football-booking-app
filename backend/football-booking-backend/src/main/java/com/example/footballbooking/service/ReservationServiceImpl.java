@@ -49,21 +49,20 @@ public class ReservationServiceImpl implements ReservationService{
         return mapToResponseDTO(savedReservation);
     }
 
-    //ogromna greska treba biti /api/field/getallreservations
-    //jer se inace gledaju sve rezervacije za pojedine terene...
-    @Override
-    public List<ReservationResponseDTO> getAllReservations() {
-        return reservationRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public void deleteReservation(Long id) {
         if (!reservationRepository.existsById(id)) {
             throw new EntityNotFoundException("Reservation not found with id: " + id);
         }
         reservationRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ReservationResponseDTO> getAllReservationsByFieldId(Long id) {
+
+        return reservationRepository.findReservationsByFootballFieldId(id).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     public List<ReservationResponseDTO> getMyReservations(String username) {
