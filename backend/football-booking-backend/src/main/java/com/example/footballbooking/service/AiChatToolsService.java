@@ -3,6 +3,7 @@ package com.example.footballbooking.service;
 import com.example.footballbooking.dto.FootballFieldDTO;
 import com.example.footballbooking.dto.FreeSlotDTO;
 import com.example.footballbooking.dto.ReservationResponseDTO;
+import com.example.footballbooking.utilis.DateUtil;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class AiChatToolsService {
@@ -25,15 +29,15 @@ public class AiChatToolsService {
 
     @Tool(description = "Returns a list of available slots(appointments) for the requested date")
     public List<FreeSlotDTO> getAllAvailableFields(String datumString) {
-        LocalDate date;
-        try {
-            date = LocalDate.parse(datumString);
-        } catch (DateTimeParseException e) {
-            return List.of(new FreeSlotDTO("Problem","Datum nije ispravan. Molimo koristi format YYYY-MM-DD.", "", ""));
+        Optional<LocalDate> optionalDate = DateUtil.parse(datumString);
+
+        if (optionalDate.isEmpty()) {
+            return List.of(new FreeSlotDTO("Greska, datum je potrebno napisati u drugom formatu"));
         }
+        LocalDate date = optionalDate.get();
 
         if (date.isBefore(LocalDate.now())) {
-            return List.of(new FreeSlotDTO("Greska", "Trazeni datum je u proslosti", "", ""));
+            return List.of(new FreeSlotDTO("Greska, trazeni datum je u proslosti"));
         }
 
         List<FootballFieldDTO> fields = fieldService.getAllFields();
@@ -42,34 +46,31 @@ public class AiChatToolsService {
         for (FootballFieldDTO field : fields) {
             List<ReservationResponseDTO> reservations = reservationService.getAllReservationsByFieldId(field.getId());
 
-            List<Integer> workDayHours = new ArrayList<>();
-            for (int i = 9; i < 23; i++) {
-                workDayHours.add(i);
-            }
+            List<Integer> availableHours = IntStream.range(9, 23)
+                    .boxed()
+                    .collect(Collectors.toList());
 
             for (ReservationResponseDTO reservation : reservations) {
                 if (reservation.getStartTime().toLocalDate().equals(date)) {
-                    workDayHours.remove(Integer.valueOf(reservation.getStartTime().getHour()));
+                    availableHours.remove(Integer.valueOf(reservation.getStartTime().getHour()));
                 }
             }
 
-            if (!workDayHours.isEmpty()) {
-                int start = workDayHours.get(0);
+            if (!availableHours.isEmpty()) {
+                int start = availableHours.get(0);
                 int end = start;
 
-                for (int i = 1; i < workDayHours.size(); i++) {
-                    if (workDayHours.get(i) == end + 1) {
+                for (int i = 1; i < availableHours.size(); i++) {
+                    if (availableHours.get(i) == end + 1) {
                         end++;
                     } else {
-                        result.add(new FreeSlotDTO("Slobodan termin", field.getName(),
-                                start + ":00", end + 1 + ":00"));
-                        start = workDayHours.get(i);
+                        result.add(new FreeSlotDTO(start + ":00", end + 1 + ":00", field.getName()));
+                        start = availableHours.get(i);
                         end = start;
                     }
                 }
 
-                result.add(new FreeSlotDTO("slobodan termin", field.getName(),
-                        start + ":00", end + 1 + ":00"));
+                result.add(new FreeSlotDTO(start + ":00", end + 1 + ":00", field.getName()));
             }
         }
         result.forEach(freeSlotDTO -> System.out.println(freeSlotDTO.getFieldName() + " " +

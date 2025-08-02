@@ -31,6 +31,7 @@ They might ask you to provide free slots on this or this date, on this or this f
 and based on provided information's you will respond to them.
 Assume each slot is 60 minutes long and the field is open from 09:00 to 23:00.
 Respond clearly and concisely. Use 24-hour format. Do not add unnecessary text.
+Respond only to questions regarding football booking.
 """;
         String response = ChatClient.create(chatModel)
                 .prompt()

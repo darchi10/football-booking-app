@@ -1,20 +1,21 @@
 package com.example.footballbooking.dto;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @Data
-@RequiredArgsConstructor
 public class FreeSlotDTO {
-    private String description;
-    private String fieldName;
     private String startTime;
     private String endTime;
+    private String fieldName;
+    private String message;
 
-    public FreeSlotDTO(String description, String name, String s, String s1) {
-        this.description = description;
-        this.fieldName = name;
-        this.startTime = s;
-        this.endTime = s1;
+    public FreeSlotDTO(String startTime, String endTime, String fieldName) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.fieldName = fieldName;
+    }
+
+    public FreeSlotDTO(String message) {
+        this.message = message;
     }
 }
