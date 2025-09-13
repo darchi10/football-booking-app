@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DashboardPage from "./pages/DashBoardPage";
+import DashboardPage from "./pages/DashboardPage";
 import BookingPage from './pages/BookingPage';
-import Navbar from "./components/Navbar";
 import MyReservationPage from "./pages/MyReservationsPage";
 import AdminRoute from "./components/adminRoute";
 import AdminFieldsPage from './pages/AdminFieldsPage';
@@ -14,7 +13,6 @@ import ProtectedRouteSigned from "./components/ProtectedRouteSigned";
 function App() {
   return ( 
     <Router>
-      <Navbar /> 
       <Routes>
         <Route element={<ProtectedRouteSigned />}>
           <Route path="/login" element={<LoginPage/>} />

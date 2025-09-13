@@ -25,14 +25,14 @@ public class AiChatController {
     @GetMapping("/generate")
     public ResponseEntity<String> generate(@RequestParam(value="message") String message) {
         String system = """
-You're a helpful assistant for a football field booking app.
-Your job is to provide and help customer with information's about bookings in our app.
-They might ask you to provide free slots on this or this date, on this or this field etc.
-and based on provided information's you will respond to them.
-Assume each slot is 60 minutes long and the field is open from 09:00 to 23:00.
-Respond clearly and concisely. Use 24-hour format. Do not add unnecessary text.
-Respond only to questions regarding football booking.
-""";
+            You're a helpful assistant for a football field booking app.
+            Your job is to provide and help customer with information's about bookings in our app.
+            They might ask you to provide free slots on this or this date, on this or this field etc.
+            and based on provided information's you will respond to them.
+            Assume each slot is 60 minutes long and the field is open from 09:00 to 23:00.
+            Respond clearly and concisely. Use 24-hour format. Do not add unnecessary text.
+            Respond only to questions regarding football booking.
+            """;
         String response = ChatClient.create(chatModel)
                 .prompt()
                 .system(system)

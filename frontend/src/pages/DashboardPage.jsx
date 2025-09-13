@@ -7,14 +7,33 @@ const DashboardPage = () => {
     const [fields, setFields] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const {logout} = useAuth(); 
+    const { logout } = useAuth();
+    const [aiQuestion, setAiQuestion] = useState('');
+    const [aiAnswer, setAiAnswer] = useState('');
+    const [aiLoading, setAiLoading] = useState(false);
+
+    const handleAskAi = async () => {
+        if (!aiQuestion) return;
+        setAiLoading(true);
+        try {
+            const response = await api.get('/ai/generate', {
+                params: { message: aiQuestion },
+            });
+            setAiAnswer(response.data);
+        } catch (err) {
+            setAiAnswer('Greška pri dohvaćanju odgovora AI-a.');
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
 
     useEffect(() => {
         const fetchFields = async () => {
             try {
                 const response = await api.get('/fields');
                 setFields(response.data);
-            } catch(err) {
+            } catch (err) {
                 setError('Greška pri dohvaćanju terena');
             } finally {
                 setLoading(false);
@@ -45,6 +64,31 @@ const DashboardPage = () => {
                     </div>
                 ))}
             </div>
+            <div className='my-6 w-full'>
+                <h2 className='text-xl font-semibold mb-2'>Pitaj AI za slobodne termine</h2>
+                <div className='flex flex-col md:flex-row gap-4'>
+                    <input
+                        type='text'
+                        className='border border-gray-300 rounded px-4 py-2 flex-1'
+                        placeholder='Npr. Koji su slobodni termini za 2025-07-20?'
+                        value={aiQuestion}
+                        onChange={(e) => setAiQuestion(e.target.value)}
+                    />
+                    <button
+                        className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700'
+                        onClick={handleAskAi}
+                    >
+                        {aiLoading ? 'Čekanje...' : 'Pitaj AI'}
+                    </button>
+                </div>
+                {aiAnswer && (
+                    <div className='mt-4 bg-gray-100 p-4 rounded shadow'>
+                        <h3 className='font-semibold mb-2'>Odgovor AI-a:</h3>
+                        <pre className='whitespace-pre-wrap'>{aiAnswer}</pre>
+                    </div>
+                )}
+            </div>
+
         </div>
     );
 };

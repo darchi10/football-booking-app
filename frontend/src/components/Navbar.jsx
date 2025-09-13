@@ -6,8 +6,8 @@ const Navbar = () => {
     const isAdmin = user && user.roles.includes("ADMIN");
 
     return (
-        <nav className='bg-primary-700 p-4 shadow-lg'>
-            <div className='container mx-auto flex justify-between items-center'>
+        <nav className='bg-primary-700 p-4 shadow-lg sticky top-0 z-50'>
+            <div className='flex justify-between items-center'>
                 <Link to="/" className='text-white text-2xl font-bold'>Football Booking</Link>
                 <div className='space-x-4'>
                     {token ? (
