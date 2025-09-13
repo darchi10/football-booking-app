@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DashboardPage from "./pages/DashBoardPage";
+import DashboardPage from "./pages/DashboardPage";
 import BookingPage from './pages/BookingPage';
 import Navbar from "./components/Navbar";
 import MyReservationPage from "./pages/MyReservationsPage";
