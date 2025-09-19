@@ -17,7 +17,7 @@ const LoginPage = () => {
             await login(username, password);
             navigate('/');
         } catch (err) {
-            setError('Neuspješna prijava. Provjerite korisničko ime i lozinku.');
+            setError('Invalid username or password.');
         }
     };
 
@@ -26,11 +26,11 @@ const LoginPage = () => {
             <Navbar /> 
             <div className="flex items-center justify-center mt-10">
                 <div className="p-8 bg-white rounded-lg shadow-lg w-full max-w-sm">
-                    <h2 className='text-2xl font-bold mb-6 text-center'>Prijava</h2>
+                    <h2 className='text-2xl font-bold mb-6 text-center'>Login</h2>
                     <form onSubmit={handleSubmit}>
                         {error && <p className='text-red-500 text-sm mb-4'>{error}</p>}
                         <div className='mb-4'>
-                            <label className='block text-gray-700 mb-2'>Korisničko ime</label>
+                            <label className='block text-gray-700 mb-2'>Username</label>
                             <input 
                                 type="text"
                                 id="username"
@@ -41,7 +41,7 @@ const LoginPage = () => {
                             />
                         </div>
                         <div className='mb-6'>
-                            <label className='block text-gray-700 mb-2' htmlFor="password">Lozinka</label>
+                            <label className='block text-gray-700 mb-2' htmlFor="password">Password</label>
                             <input 
                                 type='password'
                                 id="password"
@@ -56,7 +56,7 @@ const LoginPage = () => {
                             className='btn-primary w-full'
                             disabled={loading}
                         >
-                            {loading ? 'Prijavljujem se...' : "Prijavi se"}
+                            {loading ? 'Loading...' : "Login"}
                         </button>
                     </form>
                 </div>

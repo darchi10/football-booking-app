@@ -32,7 +32,7 @@ const AdminFieldsPage = () => {
 
             resetForm();
         } catch (error) {
-            console.error("Greška pri spremanju terena", error);
+            console.error("Error saving field", error);
         }
     };
 
@@ -43,7 +43,7 @@ const AdminFieldsPage = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Jeste li sigurni?')) {
+        if (window.confirm('Are you sure?')) {
             await api.delete(`/fields/${id}`);
             setFields(fields.filter(f => f.id !== id));
         }
@@ -57,35 +57,35 @@ const AdminFieldsPage = () => {
 
     return (
         <div className='container mx-auto p-8'>
-            <h1 className='text-3xl font-bold mb-6'>Administracija terena</h1>
+            <h1 className='text-3xl font-bold mb-6'>Field Management</h1>
             <div className='bg-white p-6 rounded-lg shadow-md mb-8'>
-                <h2 className='text-2xl font-semibold mb-4'>{isEditing ? 'Uredi Teren' : 'Dodaj novi teren'}</h2>
+                <h2 className='text-2xl font-semibold mb-4'>{isEditing ? 'Edit Field' : 'Add New Field'}</h2>
                 <form onSubmit={handleSubmit}>
                     <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
-                        <input type='text' name="name" value={formData.name} onChange={handleChange} placeholder='Naziv terena' 
+                        <input type='text' name="name" value={formData.name} onChange={handleChange} placeholder='Field Name' 
                         className='p-2 border rounded' required />
-                        <input type='text' name='address' value={formData.address} onChange={handleChange} placeholder='Adresa' 
+                        <input type='text' name='address' value={formData.address} onChange={handleChange} placeholder='Address' 
                         className='p-2 border rounded' required />
                         <input type='number' name='price_per_hour' value={formData.price_per_hour} onChange={handleChange} 
-                        placeholder='Cijena po satu' className='p-2 border rounded' required />
+                        placeholder='Price per hour' className='p-2 border rounded' required />
                     </div>
                     <div className='flex gap-4'>
-                        <button type='submit' className='btn-primary'>{isEditing ? 'Spremi promjene' : 'Dodaj teren'}</button>
-                        {isEditing && <button type='button' onClick={resetForm} className='btn-secondary'>Odustani</button>}
+                        <button type='submit' className='btn-primary'>{isEditing ? 'Save Changes' : 'Add Field'}</button>
+                        {isEditing && <button type='button' onClick={resetForm} className='btn-secondary'>Cancel</button>}
                     </div>
                 </form>
             </div>
 
             <div className='bg-white p-6 rounded-lg shadow-md'>
-                <h2 className='text-2xl font-semibold mb-4'>Postojeći tereni</h2>
+                <h2 className='text-2xl font-semibold mb-4'>Existing Fields</h2>
                 <div className='overflow-x-auto'>
                     <table className='min-w-full'>
                         <thead className='bg-gray-100'>
                             <tr>
-                                <th className='p-3 text-left'>Naziv</th>
-                                <th className='p-3 text-left'>Adresa</th>
-                                <th className='p-3 text-left'>Cijena</th>
-                                <th className='p-3 text-left'>Akcije</th>
+                                <th className='p-3 text-left'>Name</th>
+                                <th className='p-3 text-left'>Address</th>
+                                <th className='p-3 text-left'>Price</th>
+                                <th className='p-3 text-left'>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,8 +96,8 @@ const AdminFieldsPage = () => {
                                     <td className='p-3'>{field.address}</td>
                                     <td className='p-3'>{field.price_per_hour}</td>
                                     <td className='p-3 flex gap-2'>
-                                        <button onClick={() => handleEdit(field)} className='text-blue-500 hover:underline'>Uredi</button>
-                                        <button onClick={() => handleDelete(field.id)} className='text-red-500 hover:underline'>Obriši</button>
+                                        <button onClick={() => handleEdit(field)} className='text-blue-500 hover:underline'>Edit</button>
+                                        <button onClick={() => handleDelete(field.id)} className='text-red-500 hover:underline'>Delete</button>
                                     </td>
                                 </tr>)
                             })}

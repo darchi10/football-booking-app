@@ -12,17 +12,17 @@ const Navbar = () => {
                 <div className='space-x-4'>
                     {token ? (
                         <>
-                            <Link to="/" className='text-white hover:text-primary-200 transition-colors'>Tereni</Link>
-                            <Link to="/my-reservations" className='text-white hover:text-primary-200 transition-colors'>Moje rezervacije</Link>
+                            <Link to="/" className='text-white hover:text-primary-200 transition-colors'>Football fields</Link>
+                            <Link to="/my-reservations" className='text-white hover:text-primary-200 transition-colors'>My Reservations</Link>
                             {isAdmin && (
-                                <Link to="/admin/fields" className='text-white hover:text-primary-200 transition-colors'>Administracija</Link>
+                                <Link to="/admin/fields" className='text-white hover:text-primary-200 transition-colors'>Administration</Link>
                             )}
-                            <button onClick={logout} className='text-white hover:text-primary-200 transition-colors'>Odjavi se</button>
+                            <button onClick={logout} className='text-white hover:text-primary-200 transition-colors'>Logout</button>
                         </>
                     ) : (
                         <>
-                            <Link to="/login" className='text-white hover:text-primary-200 transition-colors'>Prijavi se</Link>
-                            <Link to="/register" className='text-white hover:text-primary-200 transition-colors'>Registriraj se</Link>
+                            <Link to="/login" className='text-white hover:text-primary-200 transition-colors'>Login</Link>
+                            <Link to="/register" className='text-white hover:text-primary-200 transition-colors'>Register</Link>
                         </>
                     )}
                 </div>

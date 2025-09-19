@@ -14,8 +14,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,15 +42,28 @@ public class ReservationServiceImpl implements ReservationService{
         LocalDateTime startTime = request.getStartTime();
         LocalDateTime endTime = request.getStartTime().plusHours(1);
 
-        Reservation reservation = new Reservation();
-        reservation.setUser(user);
-        reservation.setFootballField(field);
-        reservation.setStartTime(startTime);
-        reservation.setEndTime(endTime);
+        Optional<Reservation> sameReservation = Optional.ofNullable(reservationRepository
+                .findReservationByFootballFieldAndStartTime(field, startTime));
+        if (sameReservation.isPresent()) {
+            throw new IllegalArgumentException(
+                    String.format("Field '%s' at %s is already booked. Please choose another time.",
+                            field.getName(),
+                            startTime.toLocalTime().toString()
+                    )
+            );
+        }
+        else {
+            Reservation reservation = new Reservation();
+            reservation.setUser(user);
+            reservation.setFootballField(field);
+            reservation.setStartTime(startTime);
+            reservation.setEndTime(endTime);
 
-        Reservation savedReservation = reservationRepository.save(reservation);
+            Reservation savedReservation = reservationRepository.save(reservation);
 
-        return mapToResponseDTO(savedReservation);
+            return mapToResponseDTO(savedReservation);
+        }
+
     }
 
     @Override
@@ -65,11 +82,40 @@ public class ReservationServiceImpl implements ReservationService{
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<ReservationResponseDTO> getMyReservations(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         
         return reservationRepository.findByUserId(user.getId()).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, List<ReservationResponseDTO>> getAllReservationsByFieldIds(
+            List<Long> fieldIds, LocalDate date) {
+
+        try {
+            List<Reservation> reservations = reservationRepository.findByFieldIdsAndDate(fieldIds, date);
+
+            return reservations.stream()
+                    .map(this::mapToResponseDTO) // konvertiraj Reservation -> ReservationResponseDTO
+                    .collect(Collectors.groupingBy(
+                            ReservationResponseDTO::getFieldId
+                    ));
+        } catch (Exception e) {
+            return Collections.emptyMap(); // Vrati prazan Map u slučaju greške
+        }
+    }
+
+    public List<ReservationResponseDTO> getMyIncomingReservations(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return reservationRepository.findByUserIdAndStartTimeAfter(user.getId(), now).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -84,5 +130,9 @@ public class ReservationServiceImpl implements ReservationService{
         dto.setUsername(reservation.getUser().getUsername());
 
         return dto;
+    }
+
+    private Boolean checkIfFieldAlreadyBooked() {
+        return false;
     }
 }
