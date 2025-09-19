@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         if (!token) return null;
         const decodedToken = jwtDecode(token);
-        return { roles: decodedToken.roles || []};
+        return { roles: decodedToken.roles || [], username: decodedToken.sub, id: decodedToken.id };
     });
     const [loading, setLoading] = useState(false);
 
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('token', token);
             setToken(token);
             const decodedToken = jwtDecode(token);
-            setUser({ roles: decodedToken.roles || [] });
+            setUser({ roles: decodedToken.roles || [], username: decodedToken.sub, id: decodedToken.id });
         } catch (error) {
             console.error('Login failed:', error);
             throw error;

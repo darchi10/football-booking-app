@@ -19,13 +19,13 @@ const RegisterPage = () => {
         try {
             const response = await api.post('/auth/register', formData);
 
-            toast.success("Registracija uspješna!");
+            toast.success("Registration successful!");
             setTimeout(() => {
                 navigate('/');
             }, 3000);
         } 
         catch (error) {
-            console.error("Greška pri registraciji korisnika", error);
+            console.error("Error registering user", error);
             const errMsg = error.response?.data;
             toast.error(errMsg);
         }
@@ -39,11 +39,11 @@ const RegisterPage = () => {
         className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Registracija korisnika
+          User Registration
         </h2>
         <div className="mb-4">
           <label className="block text-gray-700 mb-2">
-            Puno ime
+            Full Name
           </label>
           <input
             type="text"
@@ -57,7 +57,7 @@ const RegisterPage = () => {
 
         <div className="mb-4">
           <label className="block text-gray-700 mb-2">
-            Korisničko ime
+            Username
           </label>
           <input
             type="text"
@@ -85,7 +85,7 @@ const RegisterPage = () => {
 
         <div className="mb-6">
           <label className="block text-gray-700 mb-2">
-            Lozinka
+            Password
           </label>
           <input
             type="password"
@@ -101,7 +101,7 @@ const RegisterPage = () => {
           type="submit"
           className="w-full bg-blue-600 text-white p-2 rounded-xl hover:bg-blue-700 transition duration-200"
         >
-          Registriraj se
+          Register
         </button>
       </form>
       <ToastContainer position="top-center" autoClose={2000} />

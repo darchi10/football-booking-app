@@ -49,6 +49,8 @@ public class AuthService {
         User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
         Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("id", user.getId());
+
         List<String> roles = new ArrayList<>();
         roles.add(user.getRole().name());
 
