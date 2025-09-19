@@ -27,7 +27,7 @@ public class ChatClientFactory {
             RULE 1: For DATA RETRIEVAL tools (getMyReservations and getAllAvailableFields):
             - Respond ONLY with JSON in this EXACT format:
             {"toolUsed": "toolName", "data": [results], "message": "brief description"}
-            - USE following vocabulary for data in tools: fieldName, date, startTime, endTime
+            - USE following vocabulary for necessary data in tools: fieldName, date, startTime, endTime, address, pricePerHour
             - NO additional text before, after, or around the JSON
             - NO explanations, NO conversational text, NO code blocks
             - NO ```json``` markers
