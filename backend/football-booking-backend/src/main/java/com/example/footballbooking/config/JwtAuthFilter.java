@@ -45,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         
         jwt = authHeader.substring(7); // preskoči "Bearer "
         try {
-            username = jwtService.extractUsername(jwt); // pročitaj username iz tokena
+            username = jwtService.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
@@ -61,17 +61,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (ExpiredJwtException e) {
-            // Uhvati istekli token i pošalji smislen odgovor
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write("{\"error\": \"Token je istekao. Molimo, prijavite se ponovno.\"}");
-            return; // važno: prekini lanac filtera
+            return;
         } catch (Exception e) {
-            // Uhvati ostale greške s tokenom (npr. nevažeći potpis)
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write("{\"error\": \"Nevažeći token.\"}");
-            return; // važno: prekini lanac filtera
+            return;
         }
 
         filterChain.doFilter(request, response);

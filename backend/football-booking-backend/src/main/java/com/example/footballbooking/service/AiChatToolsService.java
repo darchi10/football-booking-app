@@ -4,7 +4,7 @@ import com.example.footballbooking.dto.FootballFieldDTO;
 import com.example.footballbooking.dto.FreeSlotDTO;
 import com.example.footballbooking.dto.ReservationRequestDTO;
 import com.example.footballbooking.dto.ReservationResponseDTO;
-import com.example.footballbooking.utilis.DateTimeParser;
+import com.example.footballbooking.parser.DateTimeParser;
 import com.example.footballbooking.utilis.FreeSlotsUtilis;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;

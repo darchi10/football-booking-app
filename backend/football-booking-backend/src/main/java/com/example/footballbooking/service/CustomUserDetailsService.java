@@ -11,9 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Spring Security traži ovu implementaciju kad se želi autentificirati.
- */
 
 @Service
 @RequiredArgsConstructor

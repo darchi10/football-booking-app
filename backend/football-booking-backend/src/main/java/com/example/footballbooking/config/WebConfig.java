@@ -9,8 +9,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**") // Primijeni CORS na sve endpoint-e koji počinju s /api/
-                .allowedOrigins("http://localhost:5173") // React
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:5173")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

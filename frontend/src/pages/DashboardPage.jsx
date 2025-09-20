@@ -11,7 +11,6 @@ const DashboardPage = () => {
     const [error, setError] = useState('');
     const { logout, user } = useAuth();
     const [aiQuestion, setAiQuestion] = useState('');
-    const [aiAnswer, setAiAnswer] = useState('');
     const [messages, setMessages] = useState([]);
     const [aiLoading, setAiLoading] = useState(false);
 
@@ -23,11 +22,11 @@ const DashboardPage = () => {
             const response = await api.get('/ai/generate', {
                 params: { message: aiQuestion, userId: user.id },
             });
-            setAiAnswer(response.data);
             setMessages(prev => [...prev, { role: 'assistant', content: response.data }]);
             setAiQuestion('');
         } catch (err) {
-            setAiAnswer('Error fetching AI response.');
+            console.error(err);
+            setError('Error communicating with AI service.');
         } finally {
             setAiLoading(false);
         }
@@ -41,15 +40,11 @@ const DashboardPage = () => {
                 setFields(response.data);
             } catch (err) {
                 if (err.response && err.response.status === 401) {
-                    // Konkretna greška za istekli token
                     setError('Your session has expired. Please log in again.');
                     setTimeout(() => { }, 3000);
                     logout();
                     navigate('/login');
-                    // Možete preusmjeriti korisnika na login stranicu
-                    // navigate('/login'); 
                 } else {
-                    // Generička greška
                     setError('Error fetching fields.');
                 }
             } finally {
@@ -105,7 +100,7 @@ const DashboardPage = () => {
                             placeholder='Ask something like "What slots are available next Saturday?"'
                             value={aiQuestion}
                             onChange={(e) => setAiQuestion(e.target.value)}
-                            onKeyDown={(e => { if (e.key === 'Enter') handleAskAi(); })}
+                            onKeyDown={(e => { if (e.key === 'Enter' && !aiLoading) handleAskAi(); })}
                         />
                         <button
                             className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700'

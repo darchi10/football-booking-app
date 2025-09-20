@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> {})
-                .csrf(csrf -> csrf.disable()) //za REST API CSRF obično nije potreban
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/instances", "/actuator", "/applications").permitAll()
@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ne čuva sessione
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class);
