@@ -1,13 +1,11 @@
 package com.example.footballbooking.controller;
 
-import com.example.footballbooking.dto.AIRequest;
 import com.example.footballbooking.factory.ChatClientFactory;
 import com.example.footballbooking.service.AiChatToolsService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 
 
 @RestController

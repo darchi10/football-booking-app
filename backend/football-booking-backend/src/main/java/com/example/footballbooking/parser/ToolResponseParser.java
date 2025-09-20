@@ -43,7 +43,7 @@ public class ToolResponseParser {
                 return Optional.of(new ToolResponsePayload(toolUsed, data, message));
             }
         } catch (Exception e) {
-            // Log the exception if needed, e.g., log.warn("Failed to parse JSON", e);
+            System.out.println(e.getMessage());
         }
         return Optional.empty();
     }

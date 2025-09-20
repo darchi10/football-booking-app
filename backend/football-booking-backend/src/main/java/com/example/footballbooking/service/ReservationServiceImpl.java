@@ -100,12 +100,12 @@ public class ReservationServiceImpl implements ReservationService{
             List<Reservation> reservations = reservationRepository.findByFieldIdsAndDate(fieldIds, date);
 
             return reservations.stream()
-                    .map(this::mapToResponseDTO) // konvertiraj Reservation -> ReservationResponseDTO
+                    .map(this::mapToResponseDTO)
                     .collect(Collectors.groupingBy(
                             ReservationResponseDTO::getFieldId
                     ));
         } catch (Exception e) {
-            return Collections.emptyMap(); // Vrati prazan Map u slučaju greške
+            return Collections.emptyMap();
         }
     }
 

@@ -4,8 +4,8 @@ import com.example.footballbooking.dto.FootballFieldDTO;
 import com.example.footballbooking.dto.FreeSlotDTO;
 import com.example.footballbooking.dto.ReservationRequestDTO;
 import com.example.footballbooking.dto.ReservationResponseDTO;
-import com.example.footballbooking.utilis.DateTimeParser;
-import com.example.footballbooking.utilis.DateUtil;
+import com.example.footballbooking.parser.DateTimeParser;
+import com.example.footballbooking.utilis.FreeSlotsUtilis;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -17,17 +17,20 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Component
 public class AiChatToolsService {
     private final ReservationServiceImpl reservationService;
     private final FootballFieldServiceImpl fieldService;
+    private final FreeSlotsUtilis freeSlotsUtilis;
 
     @Autowired
-    public AiChatToolsService(ReservationServiceImpl reservationService, FootballFieldServiceImpl fieldService) {
+    public AiChatToolsService(ReservationServiceImpl reservationService,
+                              FootballFieldServiceImpl fieldService,
+                              FreeSlotsUtilis freeSlotsUtilis) {
         this.reservationService = reservationService;
         this.fieldService  = fieldService;
+        this.freeSlotsUtilis = freeSlotsUtilis;
     }
 
     @Tool(description = "Returns a list of available slots(appointments) for the requested date")
@@ -40,10 +43,11 @@ public class AiChatToolsService {
                 return Collections.emptyList();
             }
 
-            Map<Long, Set<Integer>> reservedHoursByField = loadReservedHoursForFields(fields, date);
+            Map<Long, Set<Integer>> reservedHoursByField = freeSlotsUtilis.loadReservedHoursForFields(fields, date);
 
             List<FreeSlotDTO> result = fields.parallelStream()
-                    .map(field -> createFreeSlotsForField(field, reservedHoursByField.get(field.getId())))
+                    .map(field -> freeSlotsUtilis.
+                            createFreeSlotsForField(field, reservedHoursByField.get(field.getId())))
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
 
@@ -53,65 +57,11 @@ public class AiChatToolsService {
             return result;
 
         } catch (Exception e) {
-            return List.of(new FreeSlotDTO("Error while trying to fetch fields"));
+            return List.of(new FreeSlotDTO.Builder().withMessage("Error while trying to fetch fields").build());
         }
 
     }
 
-    private Map<Long, Set<Integer>> loadReservedHoursForFields(List<FootballFieldDTO> fields, LocalDate date) {
-        List<Long> fieldIds = fields.stream()
-                .map(FootballFieldDTO::getId)
-                .collect(Collectors.toList());
-
-        Map<Long, List<ReservationResponseDTO>> reservationsByField =
-                reservationService.getAllReservationsByFieldIds(fieldIds, date);
-
-        return reservationsByField.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().stream()
-                                .map(reservation -> reservation.getStartTime().getHour())
-                                .collect(Collectors.toSet())
-                ));
-    }
-
-    private List<FreeSlotDTO> createFreeSlotsForField(FootballFieldDTO field, Set<Integer> reservedHours) {
-        if (reservedHours == null) {
-            reservedHours = Collections.emptySet();
-        }
-
-        List<FreeSlotDTO> slots = new ArrayList<>();
-        Integer slotStart = null;
-
-        for (int hour = 9; hour < 23; hour++) {
-            boolean isHourAvailable = !reservedHours.contains(hour);
-
-            if (isHourAvailable) {
-                if (slotStart == null) {
-                    slotStart = hour;
-                }
-            } else {
-                if (slotStart != null) {
-                    slots.add(new FreeSlotDTO(
-                            String.format("%02d:00", slotStart),
-                            String.format("%02d:00", hour),
-                            field.getName()
-                    ));
-                    slotStart = null;
-                }
-            }
-        }
-
-        if (slotStart != null) {
-            slots.add(new FreeSlotDTO(
-                    String.format("%02d:00", slotStart),
-                    String.format("%02d:00", 23),
-                    field.getName()
-            ));
-        }
-
-        return slots;
-    }
 
     @Tool(description = "Returns a list of reservations for the given user")
     public List<ReservationResponseDTO> getMyReservations() {
@@ -143,4 +93,68 @@ public class AiChatToolsService {
         return reservationService.createReservation(request, currentUsername);
     }
 
+    @Tool(description = "Returns available slots for a specific field on a given date")
+    public List<FreeSlotDTO> getAvailableSlotsForField(String fieldName, String dateString) {
+        LocalDate date = DateTimeParser.parseDate(dateString);
+
+        try {
+            List<FootballFieldDTO> fields = fieldService.getAllFields();
+            FootballFieldDTO field = fields.stream()
+                    .filter(f -> f.getName().equalsIgnoreCase(fieldName))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown field: " + fieldName));
+
+            Map<Long, Set<Integer>> reservedHours = freeSlotsUtilis.loadReservedHoursForFields(List.of(field), date);
+            return freeSlotsUtilis.createFreeSlotsForField(field, reservedHours.get(field.getId()));
+        } catch (Exception e) {
+            return List.of(new FreeSlotDTO.Builder().withMessage("Error while trying to fetch field: " + fieldName).build());
+        }
+    }
+
+    @Tool(description = "Returns available slots for all fields within a date range (e.g., from Monday to Friday)")
+    public List<FreeSlotDTO> getAvailableSlotsInDateRange(String startDateString, String endDateString) {
+        LocalDate startDate = DateTimeParser.parseDate(startDateString);
+        LocalDate endDate = DateTimeParser.parseDate(endDateString);
+
+        if (endDate.isBefore(startDate)) {
+            return List.of(new FreeSlotDTO.Builder().withMessage("End date must be after start date").build());
+        }
+
+        try {
+            List<FootballFieldDTO> fields = fieldService.getAllFields();
+            if (fields.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            List<FreeSlotDTO> allFreeSlots = new ArrayList<>();
+
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                Map<Long, Set<Integer>> reservedHoursByField = freeSlotsUtilis.loadReservedHoursForFields(fields, date);
+
+                LocalDate finalDate = date;
+
+                List<FreeSlotDTO> dailyFreeSlots = fields.parallelStream()
+                        .map(field -> freeSlotsUtilis.
+                                createFreeSlotsForFieldWithDate(field, reservedHoursByField.get(field.getId()), finalDate))
+                        .flatMap(Collection::stream)
+                        .toList();
+
+                allFreeSlots.addAll(dailyFreeSlots);
+            }
+
+            return allFreeSlots;
+
+        } catch (Exception e) {
+            return List.of(new FreeSlotDTO.Builder().withMessage("Error while trying to fetch fields").build());
+        }
+    }
+
+    @Tool(description = "Returns all available football fields with their details")
+    public List<FootballFieldDTO> getAllFootballFields() {
+        try {
+            return fieldService.getAllFields();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 }
