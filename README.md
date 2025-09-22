@@ -1,5 +1,5 @@
 Fullstack aplikacija za rezervaciju nogometnih terena.
-Projekt se sastoji od frontend (React + TailwindCSS) i backend (Spring Boot) dijela, uz dodatni Admin Server za monitoring.
+Projekt se sastoji od frontend (React + TailwindCSS) i backend (Spring Boot + MySQL) dijela, uz dodatni Admin Server za monitoring.
 
 Funkcionalnosti:
 	
